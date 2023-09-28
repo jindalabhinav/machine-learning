@@ -83,9 +83,137 @@ The Gathered Requirements and identified `Entitities`, *Attributes*, and **Metho
 
 ## Class Diagram
 
-- Game (Class)
-  - \- board: Board 
-  - \- human: Board 
-  - \- bot: Bot 
-  - \- board: Board 
-  - \- board: Board 
+### Root Class
+
+- Game (Class)<br>
+  \- board: Board<br>
+  \- human: Board<br>
+  \- bot: Bot<br>
+  \- status: GameStatus<br>
+  \- result: Long<br>
+  \+ start()<br>
+  \+ play()<br>
+  \+ checkWinner()<br>
+
+- GameStatus (Enum)<br>
+  IN_PROGRESS<br>
+  FINISHED<br>
+  DRAWN<br>
+
+- Board (Class) `- What do we have within the board?`<br>
+  \- size: int<br>
+  \- cells: Cell[][]<br>
+
+- Cell (Class) `- What do we have within the Cell?`<br>
+  \- x: int<br>
+  \- y: int<br>
+  \- symbol: S<br>
+  
+- S (Enum)<br>
+  X<br>
+  Y
+
+Relationships
+
+- Game --<> Board `(Game HAS A Board)`
+  - `What type of association, Composition or Aggregation? How do we decide?`
+  - Once I destroy the parentm do I need to keep the child. Hence, once I destroy the Game, do I need the Board? No, hence **Composition**.
+  - That means a filled diamond
+  - `What next? Cardinality`
+  - 1 : 1
+- Board --<> Cell `(Board HAS A Cell)`
+  - `What type of association, Composition or Aggregation? How do we decide?`
+  - Once I destroy the parent do I need to keep the child. Hence, once I destroy the Game, do I need the Board? No, hence **Composition**.
+  - That means a filled diamond
+  - `What next? Cardinality`
+  - 1 : M
+
+---
+
+- Bot (Class)<br>
+  \- level: Level<br>
+  \- symbol: S `- We need a symbol here to know which player used what Symbol`<br>
+  \+ play()<br>
+
+- Level (Enum)<br>
+  EASY<br>
+  MEDIUM<br>
+  HARD<br>
+
+- Human (Class) `- What do we have within the board?`<br>
+  \- symbol: S `- We need a symbol here to know which player used what Symbol`<br>
+  \- email: string<br>
+  \- name: string<br>
+  \- photo: string<br>
+  \+ play()<br>
+
+Relationships
+
+- Game --<> Bot `(Game HAS A Bot)`
+  - `What type of association, Composition or Aggregation? How do we decide?`
+  - Once I destroy the parent do I need to keep the child. Hence, once I destroy the Game, do I need the Bot? No, hence **Composition**.
+  - That means a filled diamond
+  - `What next? Cardinality`
+  - 1 : 1
+
+## Problems with this design
+
+1. Can't have `2 Human players`
+2. `Tight coupling`
+   1. If I want to have game with more number if players, I'll have to moduify my Game class which vialates OCP
+3. `Field and method duplication` (Player and Bot)
+4. This design will need method level playing
+
+    ```java
+    play() {
+      if (EASY) { ... }
+      else if (MEDIUM) { ... }
+      else { ... }
+    }
+    // SRP and OCP violation
+    ```
+
+    `Whenever you see a method with an Enum in class, it'll violate OCP (like Level Enum alogn with play() in Bot)`
+
+5. Between Game and Human, relationship is *HAS A*, and it's *Composition*. But a Human can play multiple games at the same time (opening multiple tabs and play the game), and creating new Humans with each game means, we'll have repeated Images which will `consume a lot of memory`.
+
+## Solutions
+
+1. We should create a Parent `Player` class for Human and Bot.
+   
+    Parent \<\<abstract class\>\><br>
+    -\ symbol:S<br>
+    +\ play() \<abstract\> <br>
+
+    Child classes
+
+    Human \<\<IS A Player\>\><br>
+    -\ name: string<br>
+    -\ email: string<br>
+    -\ photo: string<br>
+
+
+<!-- 
+```mermaid
+classDiagram
+      Animal <|-- Duck
+      Animal <|-- Fish
+      Animal <|-- Zebra
+      Animal : +int age
+      Animal : +String gender
+      Animal: +isMammal()
+      Animal: +mate()
+      class Duck{
+          +String beakColor
+          +swim()
+          +quack()
+      }
+      class Fish{
+          -int sizeInFeet
+          -canEat()
+      }
+      class Zebra{
+          +bool is_wild
+          +run()
+      }
+``` -->
