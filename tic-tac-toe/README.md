@@ -67,91 +67,119 @@ The different:
 
 Look for Nouns in your requirements, you'll identify the Entities. We'll see some other techniques as well on the way.
 
-The Gathered Requirements and identified `Entitities`, *Attributes*, and **Methods**
+The Gathered Requirements and identified `Entitities`, *`Attributes`*, and **`Methods`**
 
 - `Board` can be of any NxN *size*
 - There can be 2 `players`
 - Each player will be allotted a `symbol`
-- The symbol can be *O and X*
-- The players can be of *type* either human or bot
-- Each player will have a *name, email and profile image*
-- Each bot will have a *difficulty level*
-- Any random player can **start** the `game`
-- The players will take turns to **play** alternatively
-- The player with any consecutive N symmbols in a row, column or diagonal **wins** (check winner)
-- If the board us full and no player has won, the game is a **draw**
+- The symbol can be *`O and X`*
+- The players can be of *`type`* either human or bot
+- Each player will have a *`name, email and profile image`*
+- Each bot will have a *`difficulty level`*
+- Any random player can **`start`** the `game`
+- The players will take turns to **`play`** alternatively
+- The player with any consecutive N symmbols in a row, column or diagonal **`wins`** (check winner)
+- If the board us full and no player has won, the game is a **`draw`**
 
 ## Class Diagram
 
 ### Root Class
 
-- Game (Class)<br>
-  \- board: Board<br>
-  \- human: Board<br>
-  \- bot: Bot<br>
-  \- status: GameStatus<br>
-  \- result: Long<br>
-  \+ start()<br>
-  \+ play()<br>
-  \+ checkWinner()<br>
+```mermaid
+classDiagram
+  class Game {
+    - board: Board
+    - humanPlayer: HumanPlayer
+    - botPlayer: BotPlayer
+    - status: GameStatus
+    - result: Long
+    + start()
+    + play()
+    + checkWinner()
+  }
 
-- GameStatus (Enum)<br>
-  IN_PROGRESS<br>
-  FINISHED<br>
-  DRAWN<br>
-
-- Board (Class) `- What do we have within the board?`<br>
-  \- size: int<br>
-  \- cells: Cell[][]<br>
-
-- Cell (Class) `- What do we have within the Cell?`<br>
-  \- x: int<br>
-  \- y: int<br>
-  \- symbol: S<br>
+  class Board {
+    - size: int
+    - cells: Cell[][]
+  }
   
-- S (Enum)<br>
-  X<br>
-  Y
+  class Cell {
+    - x: int
+    - y: int
+    - symbol: Symbol
+  }
+
+  class BotPlayer {
+    - level: Level
+    - symbol: Symbol
+    + play()
+  }
+
+  class HumanPlayer {
+    - symbol: Symbol
+    - email: string
+    - name: string
+    - photo: string
+    + play()
+  }
+
+
+  Game "1" --* "1" Board
+  Game "1" --* "1" HumanPlayer
+  Game "1" --* "1" BotPlayer
+  Board "1" --* "M" Cell
+
+```
+
+```mermaid
+classDiagram
+  class GameStatus {
+    <<enumeration>>  
+    IN_PROGRESS
+    FINISHED
+    DRAWN
+  }
+
+  class Symbol {
+    <<enumeration>>
+    X
+    Y
+  }
+
+  class Level {
+    <<enumeration>>
+    EASY
+    MEDIUM
+    HARD
+  }
+```
 
 Relationships
 
 - Game --<> Board `(Game HAS A Board)`
   - `What type of association, Composition or Aggregation? How do we decide?`
-  - Once I destroy the parentm do I need to keep the child. Hence, once I destroy the Game, do I need the Board? No, hence **Composition**.
+  - Once I destroy the parent, do I need to keep the child?<br> i.e., once I destroy the Game, do I need the Board? No, hence **Composition**.
   - That means a filled diamond
   - `What next? Cardinality`
   - 1 : 1
+
 - Board --<> Cell `(Board HAS A Cell)`
   - `What type of association, Composition or Aggregation? How do we decide?`
-  - Once I destroy the parent do I need to keep the child. Hence, once I destroy the Game, do I need the Board? No, hence **Composition**.
+  - Once I destroy the Game, do I need the Board? No, hence **Composition**.
   - That means a filled diamond
   - `What next? Cardinality`
-  - 1 : M
+  - 1 : M (a board will have multiple cells)
 
----
-
-- Bot (Class)<br>
-  \- level: Level<br>
-  \- symbol: S `- We need a symbol here to know which player used what Symbol`<br>
-  \+ play()<br>
-
-- Level (Enum)<br>
-  EASY<br>
-  MEDIUM<br>
-  HARD<br>
-
-- Human (Class) `- What do we have within the board?`<br>
-  \- symbol: S `- We need a symbol here to know which player used what Symbol`<br>
-  \- email: string<br>
-  \- name: string<br>
-  \- photo: string<br>
-  \+ play()<br>
-
-Relationships
-
-- Game --<> Bot `(Game HAS A Bot)`
+- Game --<> BotPlayer `(Game HAS A BotPlayer)`
   - `What type of association, Composition or Aggregation? How do we decide?`
-  - Once I destroy the parent do I need to keep the child. Hence, once I destroy the Game, do I need the Bot? No, hence **Composition**.
+  - Once I destroy the Game, do I need the Bot? No, hence **Composition**.
+  - That means a filled diamond
+  - `What next? Cardinality`
+  - 1 : 1
+
+- Game --<> HumanPlayer `(Game HAS A HumanPlayer)`
+  - `What type of association, Composition or Aggregation? How do we decide?`
+  - Once I destroy the Game, do I need the Bot? No, hence **Composition**.
   - That means a filled diamond
   - `What next? Cardinality`
   - 1 : 1
@@ -160,7 +188,7 @@ Relationships
 
 1. Can't have `2 Human players`
 2. `Tight coupling`
-   1. If I want to have game with more number if players, I'll have to moduify my Game class which vialates OCP
+   - If I want to have game with more number if players, I'll have to modify my Game class which vialates OCP
 3. `Field and method duplication` (Player and Bot)
 4. This design will need method level playing
 
@@ -173,47 +201,232 @@ Relationships
     // SRP and OCP violation
     ```
 
-    `Whenever you see a method with an Enum in class, it'll violate OCP (like Level Enum alogn with play() in Bot)`
+    `Whenever you see a method with an Enum in class, it'll violate OCP (like Level Enum along with *play()* in Bot)`
 
-5. Between Game and Human, relationship is *HAS A*, and it's *Composition*. But a Human can play multiple games at the same time (opening multiple tabs and play the game), and creating new Humans with each game means, we'll have repeated Images which will `consume a lot of memory`.
+5. Between Game and Human, relationship is *HAS A*, and it's *Composition*. But a Human can play multiple games at the same time (opening multiple tabs and playing the game), and creating new Humans with each game means, we'll have repeated Images which will `consume a lot of memory`.
 
 ## Solutions
 
 1. We should create a Parent `Player` class for Human and Bot.
-   
-    Parent \<\<abstract class\>\><br>
-    -\ symbol:S<br>
-    +\ play() \<abstract\> <br>
 
-    Child classes
+    ```mermaid
 
-    Human \<\<IS A Player\>\><br>
-    -\ name: string<br>
-    -\ email: string<br>
-    -\ photo: string<br>
+    classDiagram
+      class Game {
+        - board: Board
+        - players: Player[]
+        - status: GameStatus
+        - result: Long
+        + start()
+        + play()
+        + checkWinner()
+      }
+
+      class Board {
+        - size: int
+        - cells: Cell[][]
+      }
+      
+      class Cell {
+        - x: int
+        - y: int
+        - symbol: Symbol
+      }
+
+      class Player {
+        <<abstract>>
+        - symbol: Symbol
+        + play()
+      }
+
+      class BotPlayer {
+        - level: Level
+        + play()
+      }
+
+      class HumanPlayer {
+        - email: string
+        - name: string
+        - photo: string
+        + play()
+      }
+
+      Game "1" --*"1" Board
+      Game "1" --* "M" Player
+      Player <|-- BotPlayer
+      Player <|-- HumanPlayer
+      Board "1" --* "M" Cell
+
+    ```
 
 
-<!-- 
+    This solves Point # 2 & 3 also.
+
+  2. `What to do with the Bot class?`
+    
+      Maybe have `EasyBot, MediumBot, & HardBot` extending the `Bot` class. But there will be a lot of code duplication. Hence, we'll implement a strategy interface (MoveStrategy), and then we can have Concrete Classes implementing this interface. Do not name your strategies on what they are, rather what they do.
+
+      We can have multiple playing strategies inheriting from PlayingStrategy, like MinMaxStrategy and RandomStrategy.
+
+      Relationships
+
+      - Bot --<> PlayingStrategy `(Bot HAS A PlayingStrategy)`
+        - `What type of association, Composition or Aggregation?`
+        - Once I destroy the Bot, I need not delete the Strategy as well, hence **Aggregation**.
+        - That means an empty diamond
+        - `What next? Cardinality`
+        - 1 : 1
+      - RandomStrategy IS A PlayingStrategy (Inheritence)
+      - MinMaxStrategy IS A PlayingStrategy (Inheritence)
+
+      ```mermaid
+
+      classDiagram
+        
+        class BotPlayer {
+          - level: Level
+          - moveStrategy: MoveStrategy
+          + makeMove()
+        }
+
+        class MoveStrategy {
+          <<interface>>
+          + makeMove()
+        }
+
+        class MinimaxMoveStrategy {
+          + makeMove()
+        }
+
+        class ClusteringMoveStrategy {
+          + makeMove()
+        }
+
+        class RandomMoveStrategy {
+          + makeMove()
+        }
+
+        
+        BotPlayer "1" --o "1" MoveStrategy
+        MoveStrategy <|-- MinimaxMoveStrategy
+        MoveStrategy <|-- ClusteringMoveStrategy
+        MoveStrategy <|-- RandomMoveStrategy
+
+      ```
+
+
+   3. `Memory Wastage between Game and Human`
+
+      `How do we use to fix the Human class?`
+
+      Whenever there's memory wastage due to duplicated fields, we use Flyweight Pattern. i.e., have common fields from Human class (Extrinsic Class) extracted out to a User class (Intrinsic Class).
+
+      Relationships
+
+      - Human --<> User `(Human HAS A User)`
+        - `What type of association, Composition or Aggregation?`
+        - Once I destroy the Human, I won't delete the User, since it can be reused, hence **Aggregation**.
+        - That means an **empty** diamond
+        - `What next? Cardinality`
+        - M : 1
+        ```mermaid
+        classDiagram
+          class HumanPlayer {
+            <<Extrinsic Class>>
+            - user: User
+            - sessionId: int
+            + makeMove()
+          }
+
+          class User {
+            <<Intrinsic Class>>
+            - email: string
+            - name: string
+            - photo: string
+          }
+
+          HumanPlayer "M" --o "1" User
+        ```
+
+      
+## Complete Class Diagram
+
 ```mermaid
-classDiagram
-      Animal <|-- Duck
-      Animal <|-- Fish
-      Animal <|-- Zebra
-      Animal : +int age
-      Animal : +String gender
-      Animal: +isMammal()
-      Animal: +mate()
-      class Duck{
-          +String beakColor
-          +swim()
-          +quack()
+
+    classDiagram
+      class Game {
+        - board: Board
+        - players: Player[]
+        - status: GameStatus
+        - result: Long
+        + start()
+        + makeMove()
+        + checkWinner()
       }
-      class Fish{
-          -int sizeInFeet
-          -canEat()
+
+      class Board {
+        - size: int
+        - cells: Cell[][]
       }
-      class Zebra{
-          +bool is_wild
-          +run()
+      
+      class Cell {
+        - x: int
+        - y: int
+        - symbol: Symbol
       }
-``` -->
+
+      class Player {
+        <<abstract>>
+        - symbol: Symbol
+        + makeMove()
+      }
+
+      class HumanPlayer {
+        <<Extrinsic Class>>
+        - user: User
+        - sessionId: int
+        + makeMove()
+      }
+
+      class User {
+        <<Intrinsic Class>>
+        - email: string
+        - name: string
+        - photo: string
+      }
+
+      class BotPlayer {
+        - level: Level
+        - moveStrategy: MoveStrategy
+        + makeMove()
+      }
+
+      class MoveStrategy {
+        <<interface>>
+        + makeMove()
+      }
+
+      class MinimaxMoveStrategy {
+        + makeMove()
+      }
+
+      class ClusteringMoveStrategy {
+        + makeMove()
+      }
+
+      class RandomMoveStrategy {
+        + makeMove()
+      }
+
+      Game "1" --*"1" Board
+      Game "1" --* "M" Player
+      Player <|-- BotPlayer
+      Player <|-- HumanPlayer
+      Board "1" --* "M" Cell
+      HumanPlayer "M" --o "1" User
+      BotPlayer "1" --o "1" MoveStrategy
+      MoveStrategy <|-- MinimaxMoveStrategy
+      MoveStrategy <|-- ClusteringMoveStrategy
+      MoveStrategy <|-- RandomMoveStrategy
+
+    ```
