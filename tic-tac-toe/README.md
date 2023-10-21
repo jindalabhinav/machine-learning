@@ -280,9 +280,7 @@ Relationships
       - MinMaxStrategy IS A PlayingStrategy (Inheritence)
 
       ```mermaid
-
       classDiagram
-        
         class BotPlayer {
           - level: Level
           - moveStrategy: MoveStrategy
@@ -311,7 +309,6 @@ Relationships
         MoveStrategy <|-- MinimaxMoveStrategy
         MoveStrategy <|-- ClusteringMoveStrategy
         MoveStrategy <|-- RandomMoveStrategy
-
       ```
 
 
@@ -329,6 +326,7 @@ Relationships
         - That means an **empty** diamond
         - `What next? Cardinality`
         - M : 1
+
         ```mermaid
         classDiagram
           class HumanPlayer {
@@ -348,85 +346,82 @@ Relationships
           HumanPlayer "M" --o "1" User
         ```
 
-      
 ## Complete Class Diagram
 
 ```mermaid
+classDiagram
+  class Game {
+    - board: Board
+    - players: Player[]
+    - status: GameStatus
+    - result: Long
+    + start()
+    + makeMove()
+    + checkWinner()
+  }
 
-    classDiagram
-      class Game {
-        - board: Board
-        - players: Player[]
-        - status: GameStatus
-        - result: Long
-        + start()
-        + makeMove()
-        + checkWinner()
-      }
+  class Board {
+    - size: int
+    - cells: Cell[][]
+  }
+  
+  class Cell {
+    - x: int
+    - y: int
+    - symbol: Symbol
+  }
 
-      class Board {
-        - size: int
-        - cells: Cell[][]
-      }
-      
-      class Cell {
-        - x: int
-        - y: int
-        - symbol: Symbol
-      }
+  class Player {
+    <<abstract>>
+    - symbol: Symbol
+    + makeMove()
+  }
 
-      class Player {
-        <<abstract>>
-        - symbol: Symbol
-        + makeMove()
-      }
+  class HumanPlayer {
+    <<Extrinsic Class>>
+    - user: User
+    - sessionId: int
+    + makeMove()
+  }
 
-      class HumanPlayer {
-        <<Extrinsic Class>>
-        - user: User
-        - sessionId: int
-        + makeMove()
-      }
+  class User {
+    <<Intrinsic Class>>
+    - email: string
+    - name: string
+    - photo: string
+  }
 
-      class User {
-        <<Intrinsic Class>>
-        - email: string
-        - name: string
-        - photo: string
-      }
+  class BotPlayer {
+    - level: Level
+    - moveStrategy: MoveStrategy
+    + makeMove()
+  }
 
-      class BotPlayer {
-        - level: Level
-        - moveStrategy: MoveStrategy
-        + makeMove()
-      }
+  class MoveStrategy {
+    <<interface>>
+    + makeMove()
+  }
 
-      class MoveStrategy {
-        <<interface>>
-        + makeMove()
-      }
+  class MinimaxMoveStrategy {
+    + makeMove()
+  }
 
-      class MinimaxMoveStrategy {
-        + makeMove()
-      }
+  class ClusteringMoveStrategy {
+    + makeMove()
+  }
 
-      class ClusteringMoveStrategy {
-        + makeMove()
-      }
+  class RandomMoveStrategy {
+    + makeMove()
+  }
 
-      class RandomMoveStrategy {
-        + makeMove()
-      }
-
-      Game "1" --*"1" Board
-      Game "1" --* "M" Player
-      Player <|-- BotPlayer
-      Player <|-- HumanPlayer
-      Board "1" --* "M" Cell
-      HumanPlayer "M" --o "1" User
-      BotPlayer "1" --o "1" MoveStrategy
-      MoveStrategy <|-- MinimaxMoveStrategy
-      MoveStrategy <|-- ClusteringMoveStrategy
-      MoveStrategy <|-- RandomMoveStrategy
-
-    ```
+  Game "1" --*"1" Board
+  Game "1" --* "M" Player
+  Player <|-- BotPlayer
+  Player <|-- HumanPlayer
+  Board "1" --* "M" Cell
+  HumanPlayer "M" --o "1" User
+  BotPlayer "1" --o "1" MoveStrategy
+  MoveStrategy <|-- MinimaxMoveStrategy
+  MoveStrategy <|-- ClusteringMoveStrategy
+  MoveStrategy <|-- RandomMoveStrategy
+```
