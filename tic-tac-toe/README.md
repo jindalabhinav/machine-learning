@@ -62,12 +62,12 @@ No, we need to design first.
 
 The different:
 
-- components
-- Entities/classes
+- Components
+- Entities/Classes
 
 Look for Nouns in your requirements, you'll identify the Entities. We'll see some other techniques as well on the way.
 
-The Gathered Requirements and identified `Entitities`, *`Attributes`*, and **`Methods`**
+The Gathered Requirements and identified `Entities`, *`Attributes`*, and **`Methods`**
 
 - `Board` can be of any NxN *size*
 - There can be 2 `players`
@@ -78,7 +78,7 @@ The Gathered Requirements and identified `Entitities`, *`Attributes`*, and **`Me
 - Each bot will have a *`difficulty level`*
 - Any random player can **`start`** the `game`
 - The players will take turns to **`play`** alternatively
-- The player with any consecutive N symmbols in a row, column or diagonal **`wins`** (check winner)
+- The player with any consecutive N symbols in a row, column or diagonal **`wins`** (check winner)
 - If the board us full and no player has won, the game is a **`draw`**
 
 ## Class Diagram
@@ -188,7 +188,7 @@ Relationships
 
 1. Can't have `2 Human players`
 2. `Tight coupling`
-   - If I want to have game with more number if players, I'll have to modify my Game class which vialates OCP
+   - If I want to have a game with more players, I'll have to modify my Game class which violates OCP
 3. `Field and method duplication` (Player and Bot)
 4. This design will need method level playing
 
@@ -276,8 +276,8 @@ Relationships
         - That means an empty diamond
         - `What next? Cardinality`
         - 1 : 1
-      - RandomStrategy IS A PlayingStrategy (Inheritence)
-      - MinMaxStrategy IS A PlayingStrategy (Inheritence)
+      - RandomStrategy IS A PlayingStrategy (Inheritance)
+      - MinMaxStrategy IS A PlayingStrategy (Inheritance)
 
       ```mermaid
       classDiagram
@@ -425,3 +425,88 @@ classDiagram
   MoveStrategy <|-- ClusteringMoveStrategy
   MoveStrategy <|-- RandomMoveStrategy
 ```
+
+## Implementation
+
+### 3 Layered Design
+
+- MVC
+  - **M**odel/Repository
+  - **V**iew/Service
+  - **C**ontroller
+- MVT
+  - **M**odel/Repository
+  - **V**iew/Service
+  - **T**emplate/HTML (in Django world)
+
+#### Analogy
+
+- When we go to a restaurant, we don't order directly to a chef, but rather a waiter. Who then takes the order to a chef. Chef cooks it.
+- Chef goes to the refrigerator, and takes out the ingredients.
+- That's how the food is made
+
+This is how the 3 layered architecture works.
+
+You --> Waiter --> Chef --> Refrigerator
+
+#### The 3 layers
+
+- The very first class where the request comes, is called the `controller`.
+- Then the request goes to the chef, who knows how to cook the food. This layer is called `service`.
+- Now what does the service layer needs, it needs to talk to the Db (like howe thew chef needs the ingredients from the fridge), this layer is known as `repository`.
+- The format in which we get the data is known as the `model` (POJO in terms of Java).
+
+#### Responsibilities of the 3 layers
+
+- Controller (Request/Presentation/Views Layer)
+  - This is where the request comes in from the client. The only job of the controller is to listen to the request, handle it, and maybe some transformation. Whenever we create a controller, we say that the controller is going to be dumb. It doesn't have any business logic
+- Service (Business/Logic/Manager Layer)
+  - Service layer has the business logic (like the chef knows how to cook the food). It knows how to respond to the request.
+- Repository (Data Layer)
+  - In order to respond to the request, the service will go to the repository, which is the data layer. Repository layer gets the data from the database in the form of the models (classes used to hold the data, the entities). It's like an adaptor over the database.
+
+### APIs
+
+In order for the client to call the code which sits on your system, APIs are used. They're Remote Procedure Calls (RPC). When I was running the code locally, I was making a Procedure call. When we want to run a method over the internet, APIs are used.
+
+APIs are the foundation of the most important architecture known as the `Client - Server Model`.
+<pre>
+             Server (exposes the APIs)
+              ^  | (responds with the data)
+  (using API) |  v
+              Client (Browser/Mobile App/Postman)
+</pre>
+
+#### Why 3 layered Architecture
+
+- Solves SRP on a high level
+  - controller listens to the request
+  - service has the business logic
+  - Repository connects with the database
+- Loose Coupling
+  - If service class directly talks to the Db, and tomorrow we need to changes MySql to Mongo. In this case we need to change everything. If we have this logic in the Repository layer, we'll require the changes only over there.
+  - Today I have an API, tomorrow, I need a CLI application. Will I have to change all the different classes? No, only the controller (because it's the one handling the request).
+  - Service layer will only change when the business logic changes
+
+That's why 3 layered architecture makes the code more maintainable.
+
+### Models
+
+Class being the blueprint, it encapsulates:
+
+- State
+  - Attributes
+- Behavior
+  - Methods
+
+Models are the Entity Classes, or the data models.
+
+```java
+class User {
+  string email;
+  string name;
+  // set(); get();
+}
+```
+
+When a class is representing an Entity, then it's called a Model, or a Data Model.
