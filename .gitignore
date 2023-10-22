@@ -1,4 +1,2 @@
-.idea/vcs.xml
+*.idea*
 machine-learning.iml
-.idea/misc.xml
-.idea/modules.xml
