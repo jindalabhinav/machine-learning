@@ -1,4 +1,8 @@
 package strategies.playing;
 
-public class PlayingStrategy {
+import main.models.Board;
+import main.models.BoardCell;
+
+public interface PlayingStrategy {
+    BoardCell makeMove(Board board);
 }
