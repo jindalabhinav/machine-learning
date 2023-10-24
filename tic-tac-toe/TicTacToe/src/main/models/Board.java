@@ -2,8 +2,8 @@ package main.models;
 
 import lombok.Getter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Getter
@@ -41,7 +41,7 @@ public class Board {
         cell.setSymbol(move.getSymbol());
     }
 
-    private BoardCell getBoardCell(int row, int column) {
+    public BoardCell getBoardCell(int row, int column) {
         return cells.get(row).get(column);
     }
 
@@ -55,5 +55,21 @@ public class Board {
             }
             System.out.println();
         }
+    }
+
+    public List<BoardCell> getEmptyCells() {
+        return cells.stream()
+                .flatMap(List::stream)
+                .filter(cell -> cell.getSymbol() == null)
+                .toList();
+
+//        List<BoardCell> availableCells = new ArrayList<>();
+//        for (List<BoardCell> cellRow : cells) {
+//            for (BoardCell boardCell : cellRow) {
+//                if (boardCell.getSymbol() == null)
+//                    availableCells.add(boardCell);
+//            }
+//        }
+//        return availableCells;
     }
 }

@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @AllArgsConstructor
+@Getter
 @Setter
 public class BoardCell {
     private int row;

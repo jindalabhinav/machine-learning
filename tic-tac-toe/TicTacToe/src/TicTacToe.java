@@ -26,10 +26,19 @@ public class TicTacToe {
         }
 
         // Print the winner
-
+        if (game.getStatus() == GameStatus.FINISHED) {
+            System.out.println("Winner of the game is: " + game.getWinner().getClass().getSimpleName());
+        }
     }
 
     private static Game createGame(HumanPlayer humanPlayer) {
+        /*
+        TODO:
+        Take input for BOARD_SIZE
+        Take input for a Game Type
+            H vs B
+            H vs H
+         */
         return Game.builder()
                 .withSize(BOARD_SIZE)
                 .withPlayer(humanPlayer)
