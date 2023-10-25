@@ -3,6 +3,8 @@ package main.models;
 import exceptions.InvalidMoveException;
 import exceptions.InvalidPlayersException;
 import lombok.Getter;
+import strategies.winning.ColumnWinningStrategy;
+import strategies.winning.DiagonalWinningStrategy;
 import strategies.winning.RowWinningStrategy;
 import strategies.winning.WinningStrategy;
 
@@ -22,7 +24,7 @@ public class Game {
     private List<Player> players = new ArrayList<>();
     private GameStatus status;
     private int nextPlayerIndex = 0;
-    private List<WinningStrategy> winningStrategies = List.of(new RowWinningStrategy());
+    private List<WinningStrategy> winningStrategies = List.of(new RowWinningStrategy(), new ColumnWinningStrategy(), new DiagonalWinningStrategy());
     private Player winner;
 
     private Game() {}
@@ -85,7 +87,7 @@ public class Game {
         if (checkWinner(move.getSymbol()))
             status = GameStatus.FINISHED;
 
-        if (checkDrawn())
+        if (status == GameStatus.IN_PROGRESS && checkDrawn())
             status = GameStatus.DRAWN;
 
         nextPlayerIndex = (nextPlayerIndex + 1) % players.size();
@@ -120,7 +122,8 @@ public class Game {
     }
 
     public boolean checkDrawn() {
-        // TODO
+        if (board.getEmptyCells().isEmpty())
+            return true;
         return false;
     }
 }

@@ -27,7 +27,11 @@ public class TicTacToe {
 
         // Print the winner
         if (game.getStatus() == GameStatus.FINISHED) {
-            System.out.println("Winner of the game is: " + game.getWinner().getClass().getSimpleName());
+            System.out.println(game.getWinner().getClass().getSimpleName() + " Wins!");
+        }
+
+        if (game.getStatus() == GameStatus.DRAWN) {
+            System.out.println("Game is Drawn");
         }
     }
 

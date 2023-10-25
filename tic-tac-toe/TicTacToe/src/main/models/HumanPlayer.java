@@ -21,6 +21,6 @@ public class HumanPlayer extends Player {
         var scanner = new Scanner(System.in);
         int row = scanner.nextInt();
         int column = scanner.nextInt();
-        return new BoardCell(row - 1, column - 1, getSymbol());
+        return new BoardCell(row, column, getSymbol());
     }
 }
