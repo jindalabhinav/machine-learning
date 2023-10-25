@@ -5,7 +5,6 @@ import java.nio.file.attribute.FileAttribute;
 import java.util.Scanner;
 
 public class TicTacToe {
-    private static final int BOARD_SIZE = 3;
     public static void main(String[] args) {
         // Ask for user input - name, email, symbol
         var humanPlayer = getUserInput();
@@ -38,13 +37,15 @@ public class TicTacToe {
     private static Game createGame(HumanPlayer humanPlayer) {
         /*
         TODO:
-        Take input for BOARD_SIZE
         Take input for a Game Type
             H vs B
             H vs H
          */
+        System.out.println("Enter board size");
+        Scanner scanner = new Scanner(System.in);
+        int boardSize = scanner.nextInt();
         return Game.builder()
-                .withSize(BOARD_SIZE)
+                .withSize(boardSize)
                 .withPlayer(humanPlayer)
                 .withPlayer(
                         BotPlayer.builder()

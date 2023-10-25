@@ -1,5 +1,6 @@
 package main.models;
 
+import exceptions.InvalidBoardException;
 import exceptions.InvalidMoveException;
 import exceptions.InvalidPlayersException;
 import lombok.Getter;
@@ -8,7 +9,6 @@ import strategies.winning.DiagonalWinningStrategy;
 import strategies.winning.RowWinningStrategy;
 import strategies.winning.WinningStrategy;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -50,9 +50,7 @@ public class Game {
         }
 
         public Game build() {
-            if (!isValid(this.game)) {
-                throw new InvalidPlayersException();
-            }
+            validateGame(this.game);
 
             Game newGame = new Game();
             newGame.board = this.game.board;
@@ -62,15 +60,19 @@ public class Game {
             return newGame;
         }
 
-        private boolean isValid(Game game) {
+        private void validateGame(Game game) {
             var players = game.players;
-            if (game.board.getSize() < 2 || players.size() != PLAYER_COUNT)
-                return false;
+            if (players.size() != PLAYER_COUNT)
+                throw new InvalidPlayersException();
 
             Set<GameSymbol> symbols = players.stream()
                     .map(Player::getSymbol)
                     .collect(Collectors.toSet());
-            return symbols.size() == PLAYER_COUNT;
+            if (symbols.size() != PLAYER_COUNT)
+                throw new InvalidPlayersException();
+
+            if (game.board.getSize() < 2)
+                throw new InvalidBoardException();
         }
     }
 
