@@ -97,9 +97,9 @@ Admin --> CRUD
 
 Before going further, let's discuss on APIs which will be used in this application.
 
-### APIs
+### What are APIs
 
-* Call method over the network
+* A way to call methods over the network
 * Done using REST (which is a specification)
 
 #### URI
@@ -197,7 +197,7 @@ Usually when we have a complex system like this, instead of looking for nouns in
 1. User comes in a car to the entry gate - `User, Car, EntryGate`
 2. There's a parking attendant sitting who hands out a parking ticket - `EntryParkingAttendant, ParkingTicket`
 3. Then the user enters the parking lot where we have different floors - `ParkingLot, Floors`
-4. On each floow we have multiple parking spots, display board, and Payment Counter - `ParkingSpot, DisplayBoard, PaymentCounter`
+4. On each floor we have multiple parking spots, display board, and Payment Counter - `ParkingSpot, DisplayBoard, PaymentCounter`
 5. Then the user proceeds to the Exit Gate where a payment is made and the Invoice is given back - `ExitGate, ExitParkingAttendant, Payment, Invoice`
    * Now it could be possible that we consider just kind of Entry Gate and use it for both Entry and Exit, but that makes it less configurable for the future. What if we want some special behavior for the Exit Gate, hence it might be better to maintain different Entities.
 
@@ -279,7 +279,7 @@ classDiagram
       - spot: ParkingSpot
       - vehicle: Vehicle
       - outTime: DateTime
-      - entryGate: EntrGate
+      - entryGate: EntryGate
       - user: User
    }
    Ticket "1" --o "1" ParkingSpot
@@ -344,3 +344,80 @@ classDiagram
 ```
 
 Note: This system supports Partial Payments, hence the amount in the Invoice and Payments might not be the same (User could pay via multiple Modes)
+
+## Parking Lot APIs
+
+In this design system, instead of a CLI system like we created in TicTacToe, we'll instead use an API driven architecture for the parking lot management system. These APIs will follow the 3-layered Architecture, i.e., Controller, Service, and Repository.
+
+Request Models that we create for the controllers are different from our Entity models. They're supposed to be lighter and easier for our clients to use. Hence, if we're creating a Parking Lot for example, we need not pass the whole objects for the Parking Floor, or the Display Board. These entities might be present in our Database, in which case we can just take an Id for those things to map them with this Parking Lot, or else, in case of Parking Floors, we can just take an input of how many floors are needed, and maybe how many spots per floor are needed as well. This will save us from an extremely nested data structure and Request DTOs (Data Transfer Objects) will come to our rescue.
+
+Also, Controllers are supposed to be very Lean and aren't supposed to have much logic, but they're still responsible for 2 things:
+
+   1. Request validation
+   2. Data Transformation
+
+### Admin APIs (CRUD operations on all Entities)
+
+#### Create a Parking Lot
+
+**POST** `/api/v1/parking-lot`
+
+**Request Body:**
+
+We'll pass the same fields as the Parking Lot Class
+
+```json
+{
+   "name": "Tantia Tope",
+   "address": "Delhi",
+   "": "",
+   "": "",
+   "": "",
+}
+```
+
+## Dependency Injection in Spring
+
+`In a 3-layered architecture, we have 3 main classes, how do we provide instances of these classes to calling classes?`
+
+* Controller requires the Service Class
+* Service requires the Repository Class
+
+Now an option is we can create objects using the constructors, but then we cannot have singleton objects, or define the scope of those objects in general. This could be inefficient in terms of memory use to begin with, but more importantly, spring is not aware of these objects.
+
+Spring Boot, apart from acting as a Web Framework, also acts as an `IoC Container`. But what is this?
+
+It will provide these object dependencies to us.
+
+Dependency here - `Controller - Service - Repository`
+
+* Now Repository Class doesn't have a Dependency on another class, so Spring creates an object of Repository class and stores it in it's Container.
+
+* Now it can create an object of Service (since it already has an object of its dependent service) and stores it in its container.
+
+* Similarly, now a container of Controller class can be created.
+
+This process is called as `Inversion Of Control (IoC)` implemented using `Dependency Injection`.
+
+`But how does Spring know,`
+
+1. `Which objects to create?`
+
+   * Through a process known as **Component Scanning**. We'll tell Spring I want you to create an object of this class, through Annotations, i.e., `@Component`. But we haven't added this anywhere yet. How did our API run?
+   * We added the `@RestController` annotation which is an extension of the `@Component` Annotation.
+   * Similarly, we annotate the Service Class with `@Service`, and Repo with `@Repository` Annotation
+   * The **scope** of these objects will be Singleton using the `@Component` Annotation, unless we specify otherwise.
+   * When the app starts up, Spring will resolve all these dependencies.
+   * Apart from Component Scanning, there are other ways to achieve the same, using Paths, and Packages that contain the dependencies, but Component Scanning way is the most preferred and famous way.
+
+2. `How does DI work?`
+
+   * There are 3 different ways of Injection
+     * `Constructor Injection:` This is the most common way of injecting dependencies. Spring sees that Service Class needs a Repository Class object, and it passes that since it has that with itself.
+
+         ```Java
+         // Constructor Injection
+         public Service(Repository repository) {
+            this.repository = repository
+         }
+         ```
