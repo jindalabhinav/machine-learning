@@ -43,13 +43,18 @@ public class TicTacToe {
          */
         System.out.println("Enter board size");
         Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Choose Game Difficulty: 1. Easy 2. Medium 3. Hard");
+        var gameDifficulty = getGameDifficulty();
+        System.out.println("Game Difficulty: " + gameDifficulty);
+        
         int boardSize = scanner.nextInt();
         return Game.builder()
                 .withSize(boardSize)
                 .withPlayer(humanPlayer)
                 .withPlayer(
                         BotPlayer.builder()
-                                .level(GameLevel.EASY)
+                                .level(gameDifficulty)
                                 .symbol(decideBotSymbol(humanPlayer))
                                 .playingStrategy(new RandomPlayingStrategy())
                                 .build()
@@ -84,5 +89,20 @@ public class TicTacToe {
         }
 
         return new HumanPlayer(humanSymbol, user);
+    }
+
+    private static GameLevel getGameDifficulty() {
+        Scanner scanner = new Scanner(System.in);
+        int difficulty = scanner.nextInt();
+        switch (difficulty) {
+            case 1:
+                return GameLevel.EASY;
+            case 2:
+                return GameLevel.MEDIUM;
+            case 3:
+                return GameLevel.HARD;
+            default:
+                return GameLevel.EASY;
+        }
     }
 }
